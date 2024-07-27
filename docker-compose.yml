@@ -1,0 +1,33 @@
+version: "3"
+services:
+  postgresdb-standalone:
+    image: postgres:11
+    container_name: postgresdb-standalone
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgresdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - pgnetwork
+  springboot-postgres:
+    build: .
+    image: kevpin/springboot-postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb-standalone:5432/postgresdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    ports:
+      - "8085:8085"
+    depends_on:
+      - postgresdb-standalone
+    networks:
+      - pgnetwork
+volumes:
+  pgdata:
+networks:
+  pgnetwork:
+    driver: bridge
